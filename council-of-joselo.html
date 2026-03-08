@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Council of Joselo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 0 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 0 100px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 56px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .header .subtitle {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: #444;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 5px;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      background: #22c55e;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    .status-dot.pulsing { animation: dotPulse 1.2s ease-in-out infinite; }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+
+    .status-dots {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #252525;
+      font-family: monospace;
+    }
+
+    .new-analysis-btn {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-family: inherit;
+      padding: 0;
+    }
+    .new-analysis-btn:hover { color: #aaa; }
+
+    /* ── FORM ── */
+    .form-section { margin-bottom: 20px; }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: #555;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      color: #ccc;
+      padding: 16px 18px;
+      font-size: 13.5px;
+      line-height: 1.7;
+      resize: vertical;
+      min-height: 140px;
+      font-family: inherit;
+      outline: none;
+      border-radius: 2px;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #333; }
+    textarea::placeholder { color: #2a2a2a; }
+
+    .analyze-btn {
+      width: 100%;
+      background: #c9a84c;
+      color: #000;
+      border: none;
+      padding: 17px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 6px;
+      border-radius: 2px;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .analyze-btn:hover { background: #b8953d; }
+    .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── CARDS ── */
+    .card {
+      border: 1px solid #181818;
+      background: #0e0e0e;
+      padding: 28px 32px;
+      margin-bottom: 14px;
+      border-radius: 2px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-name {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: #444;
+      text-transform: uppercase;
+    }
+
+    .card-status {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #c9a84c;
+      text-transform: uppercase;
+    }
+    .card-status.done { color: #333; }
+    .card-status.error { color: #7f3333; }
+
+    /* ── VERDICT CARD ── */
+    .verdict-card {
+      border: 1px solid #181818;
+      background: #0e0e0e;
+      padding: 44px 32px 36px;
+      margin-bottom: 14px;
+      border-radius: 2px;
+      text-align: center;
+    }
+
+    .verdict-label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: #444;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .verdict-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    .verdict-green  { color: #4ade80; }
+    .verdict-yellow { color: #fbbf24; }
+    .verdict-red    { color: #f87171; }
+
+    .verdict-body { text-align: left; }
+
+    .analyzing-msg {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #333;
+      text-transform: uppercase;
+    }
+
+    /* ── MARKDOWN RENDER ── */
+    .md h3 {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #444;
+      margin: 24px 0 10px;
+      font-weight: 600;
+    }
+    .md h3:first-child { margin-top: 0; }
+    .md p  { margin-bottom: 12px; color: #bbb; font-size: 13.5px; line-height: 1.75; }
+    .md p:last-child { margin-bottom: 0; }
+    .md strong { color: #ddd; font-weight: 600; }
+    .md ul, .md ol { padding-left: 20px; margin-bottom: 12px; }
+    .md li { margin-bottom: 5px; color: #bbb; font-size: 13.5px; line-height: 1.7; }
+    .md li strong { color: #ddd; }
+    .md hr { border: none; border-top: 1px solid #1a1a1a; margin: 20px 0; }
+
+    /* ── ERROR ── */
+    .error-msg {
+      color: #f87171;
+      font-size: 13px;
+      padding: 14px;
+      border: 1px solid #2d1111;
+      background: #130808;
+      border-radius: 2px;
+    }
+
+    .agents-section-label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: #2a2a2a;
+      text-transform: uppercase;
+      margin: 32px 0 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <h1>Council of Joselo</h1>
+      <div class="subtitle">Advisory Board</div>
+    </div>
+    <div class="status-bar">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-dots">· · · · · · · · · · · · · · · · ·</span>
+      <button class="new-analysis-btn" id="newAnalysisBtn" onclick="resetForm()" style="display:none">New Analysis</button>
+    </div>
+  </header>
+
+  <!-- INPUT -->
+  <div id="inputSection">
+    <div class="form-section">
+      <label class="form-label" for="apiKeyInput">Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." style="width:100%;background:#111;border:1px solid #1e1e1e;color:#ccc;padding:14px 18px;font-size:13.5px;font-family:inherit;outline:none;border-radius:2px;transition:border-color 0.2s;" onfocus="this.style.borderColor='#333'" onblur="this.style.borderColor='#1e1e1e'">
+    </div>
+    <div class="form-section">
+      <label class="form-label" for="businessContext">Business Context</label>
+      <textarea id="businessContext" rows="7" placeholder="Pega aquí tu one-pager, contexto del negocio, o cualquier información relevante sobre la empresa y su situación actual..."></textarea>
+    </div>
+    <div class="form-section">
+      <label class="form-label" for="proposal">Proposal</label>
+      <textarea id="proposal" rows="5" placeholder="Describe la propuesta, oferta o idea que quieres que el Advisory Board analice..."></textarea>
+    </div>
+    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">Analyze</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultsSection" style="display:none">
+
+    <!-- Verdict (El Inversor) at top -->
+    <div id="verdictCard" style="display:none"></div>
+
+    <!-- Agent cards -->
+    <div id="agentsArea" style="display:none">
+      <div class="agents-section-label">Expert Analysis</div>
+
+      <div class="card" id="agent1Card" style="display:none">
+        <div class="card-header">
+          <span class="card-name">Business Model Architect</span>
+          <span class="card-status" id="agent1Status">Analyzing...</span>
+        </div>
+        <div class="md" id="agent1Content"></div>
+      </div>
+
+      <div class="card" id="agent2Card" style="display:none">
+        <div class="card-header">
+          <span class="card-name">Financial & Operational Architect</span>
+          <span class="card-status" id="agent2Status">Analyzing...</span>
+        </div>
+        <div class="md" id="agent2Content"></div>
+      </div>
+
+      <div class="card" id="agent3Card" style="display:none">
+        <div class="card-header">
+          <span class="card-name">Revenue & Portfolio Strategist</span>
+          <span class="card-status" id="agent3Status">Analyzing...</span>
+        </div>
+        <div class="md" id="agent3Content"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const API_KEY = sessionStorage.getItem('coj_apikey') || '';
+  const MODEL   = 'claude-sonnet-4-6';
+
+  /* ─────────────────────────────────────────
+     SYSTEM PROMPTS
+  ───────────────────────────────────────── */
+
+  const SYSTEM_AGENT1 = `Eres un consultor especializado en diseño de ofertas y modelos de negocio para empresas de servicios y consultoría. Tu mentalidad es revenue-first: claridad por encima de sofisticación, velocidad por encima de perfección.
+
+## Tu mandato
+Analizar la propuesta que te presenten evaluando la viabilidad comercial de la oferta: qué se vende, a quién, por cuánto, y si se puede.
+
+## Frameworks que DEBES usar como base de tu análisis (no son opcionales):
+- Lean Startup: ciclo build-measure-learn aplicado a validación de oferta
+- Jobs To Be Done: ¿cuál es el "trabajo" que está contratando el cliente?
+- Value Proposition Design: ¿es la value prop simple y comunicable?
+- ICT scoring para priorización (Impact, Confidence, Ease)
+
+## Preguntas que siempre debes evaluar:
+- ¿Esto se puede vender en 30 días?
+- ¿El resultado es medible y entendible por un CEO?
+- ¿Es repetible o estamos inventando casos por caso?
+- ¿Cuál es el margen real estimado?
+
+## Reglas de conducta críticas:
+- Si la propuesta es sólida, di eso. No siempre hay problemas donde no los hay. Dar feedback positivo cuando aplica es parte del trabajo.
+- Cuando encuentres problemas, sé específico: qué está mal, por qué importa, y qué tan grave es (bloqueante vs. mejora nice to have).
+- No des recomendaciones genéricas. Todo lo que digas debe ser accionable para esta propuesta específica.
+- No hagas explicaciones innecesariamente largas. Responde en español.
+
+## Formato de la respuesta (respétalo exactamente):
+
+### Veredicto rápido
+[1-2 oraciones: ¿la oferta tiene o no tiene qué vender?]
+
+### Análisis
+[Tu análisis usando los frameworks. Conciso, máximo 4 párrafos.]`;
+
+  const SYSTEM_AGENT2 = `Eres un CFO fraccionario con experiencia en empresas de servicios en LATAM. Tu motivación es cuantificar primero: estructura viable antes de crecer, protección del downside, rentabilidad sobre crecimiento.
+
+## Tu mandato
+Analizar la propuesta evaluando si la estructura financiera y operativa es sostenible: ¿los números cierran? ¿el cliente puede pagar? ¿la operación escala? ¿qué pasa si las cosas salen mal?
+
+## Frameworks que DEBES usar como base de tu análisis (no son opcionales):
+- Rolling Forecast: ¿se puede proyectar cashflow a 3-6 meses con la info disponible?
+- Profit First: ¿el margen está protegido desde el diseño, no como resultado?
+- Unit Economics: ¿CAC, LTV y margen por cliente son proyectables?
+- Stress Testing: ¿qué pasa si el revenue cae 30%?
+
+## Preguntas que siempre debes evaluar:
+- ¿Cuál es el precio y la estructura del deal?
+- ¿Necesita el cliente financiar para contratar, o se puede resolver con estructura?
+- ¿Qué pasa si el revenue cae 30%?
+- ¿Este modelo escala sin llegar a un límite operativo o de headcount?
+
+## Reglas de conducta críticas:
+- No uses escenarios catastróficos imposibles para justificar feedback. El stress test es sobre escenarios realistas, no black swans.
+- Cuando encuentres problemas, cuantifica: no digas "el margen podría ser mejor", di "con estos supuestos el margen sería X% y necesitas Y conversaciones para cerrar Z deals".
+- No des recomendaciones genéricas en finanzas. Todo lo que digas debe aplicar a ESTA propuesta con ESTOS números.
+- Responde en español.
+
+## Formato de la respuesta (respétalo exactamente):
+
+### Veredicto rápido
+[1-2 oraciones: ¿la estructura financiera/operativa se sostiene? ¿por qué?]
+
+### Análisis
+[Análisis financiero y operativo. Conciso, máximo 4 párrafos.]`;
+
+  const SYSTEM_AGENT3 = `Eres un VP de Revenue / Head of Sales con experiencia en venta consultiva B2B en LATAM. Tu motivación es pipeline first: el revenue se diseña, no se espera. Land rápido, expand structured.
+
+## Tu mandato
+Analizar la propuesta evaluando la estrategia comercial: ¿cómo entra el cliente? ¿cómo crece el ticket? ¿el pipeline es predecible o depende de suerte y networking?
+
+## Frameworks que DEBES usar como base de tu análisis (no son opcionales):
+- Land & Expand: ¿hay un entry point claro y un path de expansión?
+- Challenger Sale: ¿estamos enseñando algo al cliente o siguiendo sus permisos?
+- Pipeline Velocity: win ratio, deal size, pipeline necesario, cycle time
+- Value Ladder: entry → core → strategic retainer
+
+## Preguntas que siempre debes evaluar:
+- ¿Cómo entra el cliente al funnel sin fricciones?
+- ¿Qué acerca al cliente al ticket hacia arriba?
+- ¿Qué tasa de cierre necesitamos para que el modelo funcione?
+- ¿Cuánto tiempo está el cliente en el pipeline?
+
+## Reglas de conducta críticas:
+- Si la estrategia comercial es sólida, decirlo. No asumas que toda propuesta necesita más optimización.
+- Cuando encuentres problemas, sé específico: no digas "mejora el pipeline", di "sin un entry point de bajo ticket el ciclo de ventas va a ser de X meses y vas a necesitar Y conversaciones para cerrar Z deals".
+- No des consejos genéricos en ventas. Todo lo que digas debe ser playbooks ejecutables para esta propuesta.
+- Responde en español.
+
+## Formato de la respuesta (respétalo exactamente):
+
+### Veredicto rápido
+[1-2 oraciones: ¿la estrategia comercial funciona? ¿por qué?]
+
+### Análisis
+[Análisis de revenue y pipeline. Conciso, máximo 4 párrafos.]`;
+
+  const SYSTEM_INVERSOR = `Eres un inversor experimentado que acaba de recibir los análisis de 3 expertos sobre una propuesta de negocio. Tu trabajo NO es hacer tu propio análisis — es dar un veredicto honesto basado en criterios formales y no opinables.
+
+## Tu mandato
+Sintetizar los 3 análisis y evaluar la propuesta contra 5 gates obligatorios. Si cumple los 5 → good enough. Si falla en alguno → no avanza. Sin subjetividad.
+
+## Los 5 Gates (todos deben cumplirse simultáneamente)
+
+### Gate 1: Economía mínima atractiva
+Debe ser verdad que:
+- Gross margin > 50%
+- Tickets a niveles definidos (ej: 15-25k USD por pack o equivalente anualizado)
+- Payback < 3 meses (si no requiere inversión previa)
+- No requiere headcount full-time previo a la primera venta
+→ Si no cumple: rechaza automáticamente, sin discusión.
+
+### Gate 2: Vendibilidad real en 30-45 días
+Debe estar definido:
+- ICP concreto (no "empresas medianas")
+- Problema urgente y articulable
+- Propuesta clara en una frase
+- Caso de uso tangible y predecible
+- El producto no "reduce heridas" genéricas → no pasa
+
+### Gate 3: Time-to-value corto
+Debe ser verdad que:
+- Entrega inicial < 4 semanas
+- Resultado observable antes del día 45
+- No depende de sistemas del cliente que no controlan
+→ Si el valor real se ve en 3-12 meses → no es velocity. No pasa.
+
+### Gate 4: Bajo riesgo estructural
+Debe ser verdad que:
+- No genera dependencia >40% revenue en un solo cliente
+- No requiere CAPEX relevante
+- No compromete escalamiento futuro con deuda operativa
+
+### Gate 5: Escalabilidad o expansión posible
+Diseñado para repetibilidad: tiene path de expansión claro (ej: Assessment → Pack → packs adicionales). El modelo puede llegar a múltiples implementaciones sin dependencia de una persona clave.
+
+## Sistema de veredictos
+- 🟢 GOOD TO GO — pasa los 5 gates. Avanzar con ejecución.
+- 🟡 NEEDS ADJUSTMENTS — falla en 1-2 gates pero son solucionables. Resolver antes de ejecutar.
+- 🔴 NO AVANZAR — falla en un gate fundamental (especialmente Gate 1). Pivotar.
+
+## Formato de la respuesta (respétalo exactamente):
+
+### Veredicto rápido
+[🟢/🟡/🔴 + 1-2 oraciones explicando el veredicto]
+
+### Evaluación por Gate
+**Gate 1 — Economía mínima:** [🟢 PASA / 🔴 NO PASA] — [1-2 oraciones con datos específicos]
+**Gate 2 — Vendibilidad real:** [🟢 PASA / 🔴 NO PASA] — [1-2 oraciones con datos específicos]
+**Gate 3 — Time-to-value:** [🟢 PASA / 🔴 NO PASA] — [1-2 oraciones con datos específicos]
+**Gate 4 — Riesgo estructural:** [🟢 PASA / 🔴 NO PASA] — [1-2 oraciones con datos específicos]
+**Gate 5 — Escalabilidad:** [🟢 PASA / 🔴 NO PASA] — [1-2 oraciones con datos específicos]
+
+### ¿En qué coincidieron?
+[En qué convergieron los 3 análisis — esto es lo más confiable]
+
+### Desacuerdos o tensiones
+[Dónde no coincidieron o hay tensión entre los análisis. Si no hay, dilo.]
+
+### Top 3 acciones (ordenadas por impacto)
+[Las 3 cosas más importantes a hacer. Si 🟢: opcionales. Si 🟡: fixes específicos de los gates que fallan. Si 🔴: razones para pivotar.]
+
+### Esto es lo que está bien y hay que focear
+[Específicamente qué funciona. Esto es tan importante como las alertas.]`;
+
+  /* ─────────────────────────────────────────
+     API CALL
+  ───────────────────────────────────────── */
+
+  async function callClaude(systemPrompt, userMessage, maxTokens = 2048) {
+    const key = sessionStorage.getItem('coj_apikey') || API_KEY;
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: maxTokens,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    if (!response.ok) {
+      let msg = `API error ${response.status}`;
+      try { const e = await response.json(); msg = e.error?.message || msg; } catch(_) {}
+      throw new Error(msg);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
+  }
+
+  /* ─────────────────────────────────────────
+     MARKDOWN RENDERER
+  ───────────────────────────────────────── */
+
+  function renderMarkdown(text) {
+    // Escape HTML first
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Headers (### ## #)
+    html = html.replace(/^#{1,3} (.+)$/gm, '<h3>$1</h3>');
+
+    // Bold
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // Horizontal rule
+    html = html.replace(/^---+$/gm, '<hr>');
+
+    // Process blocks
+    const lines = html.split('\n');
+    const result = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (!line) {
+        if (inList) { result.push('</ul>'); inList = false; }
+        continue;
+      }
+
+      if (line.startsWith('<h3>') || line.startsWith('<hr>')) {
+        if (inList) { result.push('</ul>'); inList = false; }
+        result.push(line);
+        continue;
+      }
+
+      const listMatch = line.match(/^[-•*] (.+)$/) || line.match(/^\d+\. (.+)$/);
+      if (listMatch) {
+        if (!inList) { result.push('<ul>'); inList = true; }
+        result.push(`<li>${listMatch[1]}</li>`);
+        continue;
+      }
+
+      if (inList) { result.push('</ul>'); inList = false; }
+      result.push(`<p>${line}</p>`);
+    }
+
+    if (inList) result.push('</ul>');
+    return result.join('');
+  }
+
+  /* ─────────────────────────────────────────
+     VERDICT HELPERS
+  ───────────────────────────────────────── */
+
+  function getVerdictInfo(text) {
+    const upper = text.toUpperCase();
+    if (upper.includes('GOOD TO GO') || upper.includes('🟢'))
+      return { title: 'GOOD TO GO', cls: 'verdict-green' };
+    if (upper.includes('NO AVANZAR') || upper.includes('🔴'))
+      return { title: 'NO AVANZAR', cls: 'verdict-red' };
+    return { title: 'NEEDS ADJUSTMENTS', cls: 'verdict-yellow' };
+  }
+
+  /* ─────────────────────────────────────────
+     SHOW AGENT RESULT
+  ───────────────────────────────────────── */
+
+  function showAgentResult(num, text, isError = false) {
+    const statusEl  = document.getElementById(`agent${num}Status`);
+    const contentEl = document.getElementById(`agent${num}Content`);
+
+    if (isError) {
+      statusEl.textContent = 'Error';
+      statusEl.className = 'card-status error';
+      contentEl.innerHTML = `<div class="error-msg">${text}</div>`;
+    } else {
+      statusEl.textContent = '✓';
+      statusEl.className = 'card-status done';
+      contentEl.innerHTML = renderMarkdown(text);
+    }
+  }
+
+  /* ─────────────────────────────────────────
+     MAIN ANALYSIS
+  ───────────────────────────────────────── */
+
+  async function runAnalysis() {
+    const apiKey          = document.getElementById('apiKeyInput').value.trim();
+    const businessContext = document.getElementById('businessContext').value.trim();
+    const proposal        = document.getElementById('proposal').value.trim();
+
+    if (!apiKey) {
+      alert('Ingresa tu Anthropic API key para continuar.');
+      return;
+    }
+    if (!businessContext || !proposal) {
+      alert('Completa todos los campos antes de analizar.');
+      return;
+    }
+
+    sessionStorage.setItem('coj_apikey', apiKey);
+
+    // Switch to results view
+    document.getElementById('inputSection').style.display    = 'none';
+    document.getElementById('resultsSection').style.display  = 'block';
+    document.getElementById('agentsArea').style.display      = 'block';
+    document.getElementById('analyzeBtn').disabled           = true;
+    document.getElementById('statusDot').classList.add('pulsing');
+
+    // Show all 3 agent cards
+    [1, 2, 3].forEach(n => {
+      document.getElementById(`agent${n}Card`).style.display = 'block';
+    });
+
+    const userMsg = `CONTEXTO DEL NEGOCIO:\n${businessContext}\n\nPROPUESTA A EVALUAR:\n${proposal}`;
+
+    // Run 3 agents in parallel, show each result as it arrives
+    const agentResults = { 1: null, 2: null, 3: null };
+
+    const run = (num, prompt) =>
+      callClaude(prompt, userMsg, 2048)
+        .then(text  => { agentResults[num] = text; showAgentResult(num, text, false); return text; })
+        .catch(err  => { agentResults[num] = null; showAgentResult(num, err.message, true); return null; });
+
+    await Promise.all([
+      run(1, SYSTEM_AGENT1),
+      run(2, SYSTEM_AGENT2),
+      run(3, SYSTEM_AGENT3),
+    ]);
+
+    // Show El Inversor card
+    const verdictCard = document.getElementById('verdictCard');
+    verdictCard.style.display = 'block';
+    verdictCard.innerHTML = `
+      <div class="verdict-card">
+        <div class="verdict-label">El Inversor</div>
+        <div class="analyzing-msg">Sintetizando análisis · · ·</div>
+      </div>`;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Build El Inversor message
+    const r1 = agentResults[1] || '[Error — análisis no disponible]';
+    const r2 = agentResults[2] || '[Error — análisis no disponible]';
+    const r3 = agentResults[3] || '[Error — análisis no disponible]';
+
+    const inversorMsg = `CONTEXTO DEL NEGOCIO:\n${businessContext}\n\nPROPUESTA A EVALUAR:\n${proposal}\n\n---\n\nANÁLISIS DE LOS 3 EXPERTOS:\n\n## BUSINESS MODEL ARCHITECT:\n${r1}\n\n## FINANCIAL & OPERATIONAL ARCHITECT:\n${r2}\n\n## REVENUE & PORTFOLIO STRATEGIST:\n${r3}`;
+
+    try {
+      const result = await callClaude(SYSTEM_INVERSOR, inversorMsg, 3600);
+      const { title, cls } = getVerdictInfo(result);
+
+      verdictCard.innerHTML = `
+        <div class="verdict-card">
+          <div class="verdict-label">Verdict</div>
+          <div class="verdict-title ${cls}">${title}</div>
+          <div class="verdict-body md">${renderMarkdown(result)}</div>
+        </div>`;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      verdictCard.innerHTML = `<div class="card"><div class="error-msg">Error al obtener veredicto: ${err.message}</div></div>`;
+    }
+
+    // Done
+    document.getElementById('statusDot').classList.remove('pulsing');
+    document.getElementById('newAnalysisBtn').style.display = 'inline';
+  }
+
+  /* ─────────────────────────────────────────
+     RESET
+  ───────────────────────────────────────── */
+
+  function resetForm() {
+    document.getElementById('inputSection').style.display    = 'block';
+    document.getElementById('resultsSection').style.display  = 'none';
+    document.getElementById('verdictCard').style.display     = 'none';
+    document.getElementById('agentsArea').style.display      = 'none';
+    document.getElementById('newAnalysisBtn').style.display  = 'none';
+    document.getElementById('statusDot').classList.remove('pulsing');
+    document.getElementById('analyzeBtn').disabled           = false;
+    const saved = sessionStorage.getItem('coj_apikey');
+    if (saved) document.getElementById('apiKeyInput').value = saved;
+    [1, 2, 3].forEach(n => {
+      document.getElementById(`agent${n}Card`).style.display  = 'none';
+      document.getElementById(`agent${n}Status`).textContent  = 'Analyzing...';
+      document.getElementById(`agent${n}Status`).className    = 'card-status';
+      document.getElementById(`agent${n}Content`).innerHTML   = '';
+    });
+    window.scrollTo({ top: 0 });
+  }
+</script>
+</body>
+</html>
